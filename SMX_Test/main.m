@@ -10,6 +10,7 @@
 #include "sm2alg.h"
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
+#pragma mark - SM2签名验签&&加密解密
         char* c_error[2] = {"error", "pass"};
         char* error = NULL;
         const char* c_base_message = "6D65737361676520646967657374";//"message digest"
@@ -151,6 +152,47 @@ int main(int argc, const char * argv[]) {
         
         printf("test pass\n");
         
+        
+        #pragma mark - SM3 哈希算法
+        NSString * sm3String = @"fanyunfei";
+        NSData * sm3Data = [sm3String dataUsingEncoding:NSUTF8StringEncoding];
+        unsigned char data[[sm3Data length]];
+        memcpy(data, [sm3Data bytes], [sm3Data length]);
+        unsigned char hash[32];
+        SM3(data, (int)[sm3Data length], hash);
+        for (int i = 0; i < 32; i++)
+        {
+            printf("%c\n",hash[i]);
+        }
+        
+        
+        #pragma mark - SMS4加密解密
+        unsigned char key[16] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xfe,0xdc,0xba,0x98,0x76,0x54,0x32,0x10};
+        unsigned char input[16] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xfe,0xdc,0xba,0x98,0x76,0x54,0x32,0x10};
+        unsigned char output[16];
+        for (int i = 0; i < sizeof(input); i++)
+        {
+            printf("message:%hhx\n",input[i]);
+        }
+        if (0 != SM4_encrypt(input, 16, output, key))
+        {
+            NSLog(@"NIST_sm4_encrypt error");
+            return -1;
+        }
+        for (int i = 0; i < sizeof(output); i++)
+        {
+            printf("%hhx\n",output[i]);
+        }
+        printf("++++++++++++++++++++++++++++\n");
+        if (0 != SM4_decrypt(output, sizeof(output), output, key))
+        {
+            NSLog(@"NIST_sm4_decrypt error");
+            return -1;
+        }
+        for (int i = 0; i < sizeof(output); i++)
+        {
+            printf("%hhx\n",output[i]);
+        }
     }
     return 0;
 }
